@@ -50,16 +50,13 @@ enum
 
 typedef struct instruction
 {
-	int ins_type;
-
-	int op;
-	int rk;
+	int ins_type;	//type of the instruction
+	int op;			//opcode
+	int rk;	
 	int rj;
 	int rd;
-	// int shamt;
-	int imm;
-	int offs;
-
+	int imm;		//immediate operand
+	int offs;		//offset
 } INSTRUCTION;
 
 // Memory Structure
@@ -230,116 +227,116 @@ int decode(uint32_t instr, INSTRUCTION *ins)
 
 	switch(op6)
 	{
-		case OP6_HALT:
-			// halt	(0x3f)	Effect: Stop CPU and exit
-			printf("HALT!\n");
-			return -1;
-		case OP6_NOP:
-			// NOP	(0xff)	Effect: PC <- PC + 1
-    		ins->op = op6;
-        	ins->ins_type = TYPE_2RI16;
-			printf("NOP\n");
-			return 0;
-		case OP6_JIRL:
-		case OP6_BEQ:
-		case OP6_BNE:
-		case OP6_BGE:
-			/* 2RI16-type instruction (6bits opcode + I16 + 5bits rj + 5bits rd)*/
-			ins->op = op6;
-			ins->ins_type = TYPE_2RI16;
-			ins->imm = (instr & (strtol("1111111111111111", NULL, 2) << 10)) >> 10;
-			ins->rj = ((instr & (strtol("11111", NULL, 2) << 5)) >> 5);
-			ins->rd = instr & (strtol("11111", NULL, 2));
-			printf("[type: 2RI16]	op = 0x%x, imm = %d, rj = %d, rd = %d\n", ins->op, ins->imm, ins->rj, ins->rd);
-			return 0;
-		case OP6_BEQZ:
-		case OP6_BNEZ:
-			/* 2RI21-type instruction (6bits opcode + I21[15:0] + 5bits rj + I21[20:16])*/
-			ins->op = op6;
-			ins->ins_type = TYPE_2RI21;
-			ins->imm = (instr & (strtol("11111", NULL, 2))) << 15;
-			ins->imm += ((instr & (strtol("1111111111111111", NULL, 2) << 10)) >> 10);
-			ins->rj = ((instr & (strtol("11111", NULL, 2) << 5)) >> 5);
-			printf("[type: 2RI21]	op = 0x%x, imm = %d, rj = %d\n", ins->op, ins->imm, ins->rj);
-			return 0;
-		case OP6_B:
-		case OP6_BL:
-			/* I26-type instruction (6bits opcode + I26[15:0] + I26[25:16])*/
-			//await implementation
-			return 0;
-		default:
-			break;
+	case OP6_HALT:
+		// halt	(0x3f)	Effect: Stop CPU and exit
+		printf("HALT!\n");
+		return -1;
+	case OP6_NOP:
+		// NOP	(0xff)	Effect: PC <- PC + 1
+		ins->op = op6;
+		ins->ins_type = TYPE_2RI16;
+		printf("NOP\n");
+		return 0;
+	case OP6_JIRL:
+	case OP6_BEQ:
+	case OP6_BNE:
+	case OP6_BGE:
+		/* 2RI16-type instruction (6bits opcode + I16 + 5bits rj + 5bits rd)*/
+		ins->op = op6;
+		ins->ins_type = TYPE_2RI16;
+		ins->imm = (instr & (strtol("1111111111111111", NULL, 2) << 10)) >> 10;
+		ins->rj = ((instr & (strtol("11111", NULL, 2) << 5)) >> 5);
+		ins->rd = instr & (strtol("11111", NULL, 2));
+		printf("[type: 2RI16]	op = 0x%x, imm = %d, rj = %d, rd = %d\n", ins->op, ins->imm, ins->rj, ins->rd);
+		return 0;
+	case OP6_BEQZ:
+	case OP6_BNEZ:
+		/* 2RI21-type instruction (6bits opcode + I21[15:0] + 5bits rj + I21[20:16])*/
+		ins->op = op6;
+		ins->ins_type = TYPE_2RI21;
+		ins->imm = (instr & (strtol("11111", NULL, 2))) << 15;
+		ins->imm += ((instr & (strtol("1111111111111111", NULL, 2) << 10)) >> 10);
+		ins->rj = ((instr & (strtol("11111", NULL, 2) << 5)) >> 5);
+		printf("[type: 2RI21]	op = 0x%x, imm = %d, rj = %d\n", ins->op, ins->imm, ins->rj);
+		return 0;
+	case OP6_B:
+	case OP6_BL:
+		/* I26-type instruction (6bits opcode + I26[15:0] + I26[25:16])*/
+		//await implementation
+		return 0;
+	default:
+		break;
 	}
 	switch(op7)
 	{
-    	case OP7_LU12I_W:
-		case OP7_PCADDU12I:
-			/* 2RI20-type instruction (7bits opcode + I20 + 5bits rd)*/
-			//await implementation
-			return 0;
-		default:
-			break;
+	case OP7_LU12I_W:
+	case OP7_PCADDU12I:
+		/* 2RI20-type instruction (7bits opcode + I20 + 5bits rd)*/
+		//await implementation
+		return 0;
+	default:
+		break;
 	}
 	switch(op8)
 	{
-		case OP8_LDPTR_W:
-		case OP8_STPTR_W:
-			/* 2RI14-type instruction (8bits opcode + I14 + 5bits rj + 5bits rd)*/
-			//await implementation
-			return 0;
-		default:
-			break;
+	case OP8_LDPTR_W:
+	case OP8_STPTR_W:
+		/* 2RI14-type instruction (8bits opcode + I14 + 5bits rj + 5bits rd)*/
+		//await implementation
+		return 0;
+	default:
+		break;
 	}
 	switch(op10)
 	{
-		case OP10_ADDI_D:
-		case OP10_ADDI_W:
-		case OP10_ANDI:
-		case OP10_ORI:
-		case OP10_XORI:
-		case OP10_LD_D:
-		case OP10_LD_B:
-		case OP10_ST_W:
-		case OP10_ST_D:
-		case OP10_LD_BU:
-			/* 2RI12-type instruction (10bits opcode + I12 + 5bits rj + 5bits rd)*/
-			ins->op = op10;
-			ins->ins_type = TYPE_2RI12;
-			ins->imm = ((instr & (strtol("111111111111", NULL, 2) << 10)) >> 10);
-			ins->rj = ((instr & (strtol("11111", NULL, 2) << 5)) >> 5);
-			ins->rd = instr & (strtol("11111", NULL, 2));
-			printf("[type: 2RI12]	op = 0x%x, imm = %d, rj = %d, rd = %d\n", ins->op, ins->imm, ins->rj, ins->rd);
-			return 0;
-		case OP10_BSTRPICK_D:
-			//   (10bits opcode + 6bits msbd + 6bits lsbd + 5bits rj + 5bits rd)
-			//await implementation
-			return 0;
-		default:
-			break;
+	case OP10_ADDI_D:
+	case OP10_ADDI_W:
+	case OP10_ANDI:
+	case OP10_ORI:
+	case OP10_XORI:
+	case OP10_LD_D:
+	case OP10_LD_B:
+	case OP10_ST_W:
+	case OP10_ST_D:
+	case OP10_LD_BU:
+		/* 2RI12-type instruction (10bits opcode + I12 + 5bits rj + 5bits rd)*/
+		ins->op = op10;
+		ins->ins_type = TYPE_2RI12;
+		ins->imm = ((instr & (strtol("111111111111", NULL, 2) << 10)) >> 10);
+		ins->rj = ((instr & (strtol("11111", NULL, 2) << 5)) >> 5);
+		ins->rd = instr & (strtol("11111", NULL, 2));
+		printf("[type: 2RI12]	op = 0x%x, imm = %d, rj = %d, rd = %d\n", ins->op, ins->imm, ins->rj, ins->rd);
+		return 0;
+	case OP10_BSTRPICK_D:
+		//   (10bits opcode + 6bits msbd + 6bits lsbd + 5bits rj + 5bits rd)
+		//await implementation
+		return 0;
+	default:
+		break;
 	}
 	switch(op17)
 	{
-		case OP17_SLTU:
-		case OP17_NOR:
-		case OP17_AND:
-		case OP17_OR:
-		case OP17_XOR:
-			/* 3R-type instruction (17bits opcode + 5bits rk + 5bits rj + 5bits rd)*/
-			ins->op = op17;
-			ins->ins_type = TYPE_3R;
-			ins->rk = ((instr & (strtol("11111", NULL, 2) << 10)) >> 10);
-			ins->rj = ((instr & (strtol("11111", NULL, 2) << 5)) >> 5);
-			ins->rd = instr & (strtol("11111", NULL, 2));
-			printf("[type: 3R]	op = 0x%x, rk = %d, rj = %d, rd = %d\n", ins->op, ins->rk, ins->rj, ins->rd);
-			return 0;
-		case OP17_SLLI_W:
-		case OP17_SRLI_W:
-			//(17bits opcode + I5 + 5bits rj + 5bits rd)
-			//await implementation
-			return 0;
-		default:
-			printf("ERROR: cannot decode instruction!");
-			return -1;
+	case OP17_SLTU:
+	case OP17_NOR:
+	case OP17_AND:
+	case OP17_OR:
+	case OP17_XOR:
+		/* 3R-type instruction (17bits opcode + 5bits rk + 5bits rj + 5bits rd)*/
+		ins->op = op17;
+		ins->ins_type = TYPE_3R;
+		ins->rk = ((instr & (strtol("11111", NULL, 2) << 10)) >> 10);
+		ins->rj = ((instr & (strtol("11111", NULL, 2) << 5)) >> 5);
+		ins->rd = instr & (strtol("11111", NULL, 2));
+		printf("[type: 3R]	op = 0x%x, rk = %d, rj = %d, rd = %d\n", ins->op, ins->rk, ins->rj, ins->rd);
+		return 0;
+	case OP17_SLLI_W:
+	case OP17_SRLI_W:
+		//(17bits opcode + I5 + 5bits rj + 5bits rd)
+		//await implementation
+		return 0;
+	default:
+		printf("ERROR: cannot decode instruction!");
+		return -1;
 	}
 }
 	
@@ -349,129 +346,155 @@ int execute(COMPUTER *cp, INSTRUCTION *ins)
 	printf("EXECUTE: ");
 	switch (ins->ins_type)
 	{
-		case TYPE_2RI16:
-			switch(ins->op)
+	case TYPE_2RI16:
+		switch(ins->op)
+		{
+		case OP6_NOP:
+			break;
+		case OP6_JIRL:
+			cp->cpu.R[ins->rd] = cp->cpu.PC;
+			cp->cpu.PC = cp->cpu.R[ins->rj] + ins->offs;
+			printf("JIRL	[PC <- rj+(sign-extend)offs; rd <- PC+1]\n");
+			break;
+		case OP6_BEQ:
+			printf("BEQ not implemented\n");
+			break;
+		case OP6_BNE:
+			printf("BNE not implemented\n");
+			break;
+		case OP6_BGE:
+			printf("BGE not implemented\n");
+			break;
+		default:
+			printf("ERROR: cannot execute instruction!");
+			return -1;
+		}
+		break;
+	case TYPE_2RI21:
+		switch(ins->op)
+		{
+		case OP6_BEQZ:
+			if(cp->cpu.R[ins->rj] == 0)
 			{
-                case OP6_NOP:
-                	break;
-				case OP6_JIRL:
-					cp->cpu.R[ins->rd] = cp->cpu.PC;
-					cp->cpu.PC = cp->cpu.R[ins->rj] + ins->offs;
-					printf("JIRL	[PC <- rj+(sign-extend)offs; rd <- PC+1]\n");
-					break;
-				case OP6_BEQ:
-					printf("BEQ not implemented\n");
-					break;
-				case OP6_BNE:
-					printf("BNE not implemented\n");
-					break;
-				case OP6_BGE:
-					printf("BGE not implemented\n");
-					break;
-				default:
-					printf("ERROR: cannot execute instruction!");
-					return -1;
+				cp->cpu.PC -= 1;
+				cp->cpu.PC += ins->imm;
+				printf("BEQZ	[rj==0: PC <- PC+(sign-extend)offs]\n");
 			}
-           break;
-		case TYPE_2RI21:
-			switch(ins->op)
+			else
 			{
-				case OP6_BEQZ:
-					if(cp->cpu.R[ins->rj] == 0)
-					{
-                    	cp->cpu.PC -= 1;
-						cp->cpu.PC += ins->imm;
-						printf("BEQZ	[rj==0: PC <- PC+(sign-extend)offs]\n");
-					}
-					else
-					{
-						printf("BEQZ	[rj!=0]");
-					}
-					
-					break;
-				case OP6_BNEZ:
-					printf("BNEZ not implemented\n");
-					break;
+				printf("BEQZ	[rj!=0]");
+			}
+			
+			break;
+		case OP6_BNEZ:
+			printf("BNEZ not implemented\n");
+			break;
 
-				default:
-					printf("ERROR: cannot execute instruction!");
-					return -1;
-			}
-           break;
-		case TYPE_I26:
-			switch(ins->op)
-			{
-				case OP6_B:
-					printf("B not implemented\n");
-					break;
-				case OP6_BL:
-					printf("BL not implemented\n");
-					break;
-				default:
-					printf("ERROR: cannot execute instruction!");
-					return -1;
-			}
-           break;
-		case TYPE_2RI20:
-			switch(ins->op)
-			{
-				case OP7_LU12I_W:
-					printf("LU12I.W not implemented\n");
-					break;
-				case OP7_PCADDU12I:
-					printf("PCADDU12I not implemented\n");
-					break;
-				default:
-					printf("ERROR: cannot execute instruction!");
-					return -1;
-			}
-           break;
-		case TYPE_2RI14:
-			switch(ins->op)
-			{
-				case OP8_LDPTR_W:
-					printf("LDPTR.W not implemented\n");
-					break;
-				case OP8_STPTR_W:
-					printf("STPTR.W not implemented\n");
-					break;
-				default:
-					printf("ERROR: cannot execute instruction!");
-					return -1;
-			}
-           break;
-		case TYPE_2RI12:
-			switch(ins->op)
-			{
-				case OP10_ADDI_D:
-					cp->cpu.R[ins->rd] = cp->cpu.R[ins->rj] + ins->imm;
-					printf("ADDI.D	[rd <- rj + (sign-extend)I12]\n");
-					break;
-				case OP10_XORI:
-					cp->cpu.R[ins->rd] = cp->cpu.R[ins->rj] ^ ins->imm;
-					printf("XORI	[rd <- rj ^ (0-extend)I12]\n");
-					break;
-				case OP10_ADDI_W:
-					cp->cpu.R[ins->rd] = cp->cpu.R[ins->rj] + ins->imm;
-					printf("ADDI.D	[rd <- rj + (sign-extend)I12]\n");
-					break;
-				case OP10_LD_D:
-					cp->cpu.R[ins->rd] = cp->memory.addr[cp->cpu.R[ins->rj] + ins->imm];
-					printf("LD.D	[rd <- mem(rj + (sign-extend)I12)]\n");
-					break;
-				case OP10_ST_D:
-					cp->memory.addr[cp->cpu.R[ins->rj] + ins->imm] = cp->cpu.R[ins->rd];
-					printf("ST.D	[mem(rj + (sign-extend)I12) <- rd]\n");
-					break;
-                // multiple instructions awaits implementation here
-				default:
-					printf("ERROR: cannot execute instruction!");
-					return -1;
-			}
-           break;
-           default:
-            	printf("ERROR: instruction type error!");
-            	return -1;
+		default:
+			printf("ERROR: cannot execute instruction!");
+			return -1;
+		}
+		break;
+	case TYPE_I26:
+		switch(ins->op)
+		{
+		case OP6_B:
+			printf("B not implemented\n");
+			break;
+		case OP6_BL:
+			printf("BL not implemented\n");
+			break;
+		default:
+			printf("ERROR: cannot execute instruction!");
+			return -1;
+		}
+		break;
+	case TYPE_2RI20:
+		switch(ins->op)
+		{
+		case OP7_LU12I_W:
+			printf("LU12I.W not implemented\n");
+			break;
+		case OP7_PCADDU12I:
+			printf("PCADDU12I not implemented\n");
+			break;
+		default:
+			printf("ERROR: cannot execute instruction!");
+			return -1;
+		}
+		break;
+	case TYPE_2RI14:
+		switch(ins->op)
+		{
+		case OP8_LDPTR_W:
+			printf("LDPTR.W not implemented\n");
+			break;
+		case OP8_STPTR_W:
+			printf("STPTR.W not implemented\n");
+			break;
+		default:
+			printf("ERROR: cannot execute instruction!");
+			return -1;
+		}
+		break;
+	case TYPE_2RI12:
+		switch(ins->op)
+		{
+		case OP10_ADDI_D:
+			cp->cpu.R[ins->rd] = cp->cpu.R[ins->rj] + ins->imm;
+			printf("ADDI.D	[rd <- rj + (sign-extend)I12]\n");
+			break;
+		case OP10_XORI:
+			cp->cpu.R[ins->rd] = cp->cpu.R[ins->rj] ^ ins->imm;
+			printf("XORI	[rd <- rj ^ (0-extend)I12]\n");
+			break;
+		case OP10_ADDI_W:
+			cp->cpu.R[ins->rd] = cp->cpu.R[ins->rj] + ins->imm;
+			printf("ADDI.D	[rd <- rj + (sign-extend)I12]\n");
+			break;
+		case OP10_LD_D:
+			cp->cpu.R[ins->rd] = cp->memory.addr[cp->cpu.R[ins->rj] + ins->imm];
+			printf("LD.D	[rd <- mem(rj + (sign-extend)I12)]\n");
+			break;
+		case OP10_ST_D:
+			cp->memory.addr[cp->cpu.R[ins->rj] + ins->imm] = cp->cpu.R[ins->rd];
+			printf("ST.D	[mem(rj + (sign-extend)I12) <- rd]\n");
+			break;
+		// multiple instructions awaits implementation here
+		default:
+			printf("ERROR: cannot execute instruction!");
+			return -1;
+		}
+		break;
+	case TYPE_3R:
+		switch (ins->op)
+		{
+		case OP17_NOR:
+            /*****************************/
+            /* Please add your code here */
+            /*****************************/
+		case OP17_AND:
+            /*****************************/
+            /* Please add your code here */
+            /*****************************/
+			break;
+		case OP17_OR:
+            /*****************************/
+            /* Please add your code here */
+            /*****************************/
+			break;
+		case OP17_XOR:
+            /*****************************/
+            /* Please add your code here */
+            /*****************************/
+			break;
+		default:
+			printf("ERROR: cannot execute instruction!");
+			break;
+		}
+	default:
+		printf("ERROR: instruction type error!");
+		return -1;
 	}
 	printf("**********************************************************************");
 	return 0;
