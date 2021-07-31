@@ -9,7 +9,7 @@
 #include <unistd.h>
 #include "loongarch.h"
 
-#define MAX_MEM_SIZE 64 //The max memory size - 64 words (256 bytes)
+#define MAX_MEM_SIZE 64 //The max memory size - 64 words (512 bytes)
 
 // represent the 32 general registers
 enum
@@ -72,22 +72,30 @@ int main(int argc, char **args)
 
 	uint32_t memory[MAX_MEM_SIZE];
 
-	// ADDI.D, op = OP10_ADDI_D, imm = 32, rj = $r3, rd = $r3
-	memory[0] = (OP10_ADDI_D << 22) + (32 << 10) + ($r3 << 5) + $r3;	//r3 = r3 + 32
-	// ST.D, op = OP10_LT_D, offset = 10, rj = $r2, rd = $r3
-	memory[1] = (OP10_ST_D << 22) + (10 << 10) + ($r2 << 5) + $r3;		//mem(r2 + 10) = r3
-	// LD.D, op = OP10_LD_D, offset = 10, rj = $r7, rd = $r4
-	memory[2] = (OP10_LD_D << 22) + (10 << 10)  + ($r7 << 5) + $r4;		//r4 = mem(r7 + 10)
-	// BEQZ, op = OP6_BEQZ
-	memory[3] = (OP6_BEQZ << 26) + (2 << 10) + ($r2 << 5);		// if r2 = 0, jump to mem(5)
-	// ADDI.D, op = OP10_ADDI_D, imm = 666, rj = $r3, rd = $r3
-	memory[4] = (OP10_ADDI_D << 22) + (666 << 10) + ($r5 << 5) + $r5;	//r5 = r5 + 666
-	// ADDI.D, op = OP10_ADDI_D, imm = 999, rj = $r3, rd = $r3
-	memory[5] = (OP10_ADDI_D << 22) + (999 << 10) + ($r6 << 5) + $r6;	//r6 = r6 + 999
-	//	XORI, op = OP10_XORI, imm = 0xfff, rj = $r6, rd = $r7
-	memory[6] = (OP10_XORI << 22) + (0xfff << 10) + ($r6 << 5) + $r7;	//r7 = r6 ^ fff
-	// the last instruction will be halt, indicates the end of the program
-	memory[7] = 0xfc000000;	// instruction: HALT
+	// // ADDI.D, op = OP10_ADDI_D, imm = 32, rj = $r3, rd = $r3
+	// memory[0] = (OP10_ADDI_D << 22) + (32 << 10) + ($r3 << 5) + $r3;	//r3 = r3 + 32
+	// // ST.D, op = OP10_LT_D, offset = 10, rj = $r2, rd = $r3
+	// memory[1] = (OP10_ST_D << 22) + (10 << 10) + ($r2 << 5) + $r3;		//mem(r2 + 10) = r3
+	// // LD.D, op = OP10_LD_D, offset = 10, rj = $r7, rd = $r4
+	// memory[2] = (OP10_LD_D << 22) + (10 << 10)  + ($r7 << 5) + $r4;		//r4 = mem(r7 + 10)
+	// // BEQZ, op = OP6_BEQZ
+	// memory[3] = (OP6_BEQZ << 26) + (2 << 10) + ($r2 << 5);		// if r2 = 0, jump to mem(5)
+	// // ADDI.D, op = OP10_ADDI_D, imm = 666, rj = $r3, rd = $r3
+	// memory[4] = (OP10_ADDI_D << 22) + (666 << 10) + ($r5 << 5) + $r5;	//r5 = r5 + 666
+	// // ADDI.D, op = OP10_ADDI_D, imm = 999, rj = $r3, rd = $r3
+	// memory[5] = (OP10_ADDI_D << 22) + (999 << 10) + ($r6 << 5) + $r6;	//r6 = r6 + 999
+	// //	XORI, op = OP10_XORI, imm = 0xfff, rj = $r6, rd = $r7
+	// memory[6] = (OP10_XORI << 22) + (0xfff << 10) + ($r6 << 5) + $r7;	//r7 = r6 ^ fff
+	// // the last instruction will be halt, indicates the end of the program
+	// memory[7] = 0xfc000000;	// instruction: HALT
+
+    //  ADDI.W, op = OP10_ADDI_W, imm = 123, rj = $r6, rd = $r6
+    memory[0] = (OP10_ADDI_W << 22) + (123 << 10) + ($r6 << 5) + $r6;   //r6 = r6 + 123
+    //  ADDI.W, op = OP10_ADDI_W, imm = 456, rj = $r6, rd = $r7
+    memory[1] = (OP10_ADDI_W << 22) + (456 << 10) + ($r6 << 5) + $r7;   //r7 = r6 + 456
+    // the last instruction will be halt, indicates the end of the program
+    memory[2] = 0xfc000000; // instruction: HALT
+
 
 	/* write the memory contents into the image file*/
 	int wcount;
@@ -110,7 +118,7 @@ int main(int argc, char **args)
 int print_instruction(uint32_t *p_i)
 {
 	uint8_t *p = (uint8_t *)p_i;
-
+	
 	uint8_t low_addr_value = *(p + 3);
 	uint8_t sec_addr_value = *(p + 2);
 	uint8_t third_addr_value = *(p + 1);

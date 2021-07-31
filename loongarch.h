@@ -23,6 +23,7 @@
 #define OP10_ANDI   0x00d
 #define OP10_ORI    0x00e
 #define OP10_XORI   0x00f
+#define OP10_LD_W   0x0a2
 #define OP10_LD_D   0x0a3
 #define OP10_LD_B   0x0a4
 #define OP10_ST_W   0x0a6
